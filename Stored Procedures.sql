@@ -268,4 +268,20 @@ DELIMITER ;
 #-------------------------------------------------------------------------------------------------#
 #-------------------------------------------------------------------------------------------------#
 
+DELIMITER //
+
+CREATE PROCEDURE GetTransmissions()
+BEGIN
+    SELECT userregistration.*, roles.role_name 
+    FROM userregistration 
+    INNER JOIN roles ON userregistration.role_id = roles.role_id;
+END //
+
+DELIMITER ;
+
+call GetTransmissions();
+
+#-------------------------------------------------------------------------------------------------#
+#-------------------------------------------------------------------------------------------------#
+
 call GetRegisteredRecordByEmail('vedantpatil3941@gmail.com');
