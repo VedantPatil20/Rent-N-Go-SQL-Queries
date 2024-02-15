@@ -38,6 +38,7 @@ CREATE TABLE cardetails (
     brand VARCHAR(255),
     model VARCHAR(255),
     _year INT,
+    transmission_id INT,
     vehicle_category VARCHAR(255),
     fuel VARCHAR(255),
     passenger_capacity INT,
@@ -46,14 +47,9 @@ CREATE TABLE cardetails (
     _desc TEXT,
     daily_price DECIMAL(10, 2),
     car_model_images TEXT,
-    _status VARCHAR(255)
+    _status VARCHAR(255),
+    FOREIGN KEY (transmission_id) REFERENCES transmission(id) ON UPDATE CASCADE
 );
-
-ALTER TABLE cardetails
-ADD COLUMN transmission_id INT;
-
-ALTER TABLE cardetails
-ADD FOREIGN KEY (transmission_id) REFERENCES Transmission(Id);
 
 #-------------------------------------------------------------------------------------------------#
 #-------------------------------------------------------------------------------------------------#
@@ -63,8 +59,12 @@ CREATE TABLE transmission (
     name VARCHAR(255)
 );
 
-select * from transmission;
+INSERT INTO transmission (id, name) VALUES
+(1, 'Automatic'),
+(2, 'Manual'),
+(3, 'Intelligent Manual Transmission');
 
+select * from transmission;
 
 #-------------------------------------------------------------------------------------------------#
 #-------------------------------------------------------------------------------------------------#

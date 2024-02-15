@@ -209,10 +209,15 @@ CREATE PROCEDURE GetCarDetailsById(
         IN p_id INT
 )
 BEGIN
-    SELECT * FROM cardetails WHERE car_id = p_id;
+    SELECT cardetails.*, transmission.name 
+    FROM cardetails 
+    INNER JOIN transmission ON cardetails.transmission_id = transmission.id
+    WHERE car_id = p_id;
 END //
 
 DELIMITER ;
+
+call GetCarDetailsById(1);
 
 #-------------------------------------------------------------------------------------------------#
 #-------------------------------------------------------------------------------------------------#
@@ -224,7 +229,7 @@ CREATE PROCEDURE UpdateExistingCarDetails(
     IN p_model VARCHAR(255),
     IN p_year INT,
     IN p_vehicle_category VARCHAR(255),
-    IN p_transmission VARCHAR(255),
+    IN p_transmission_id INT,
     IN p_fuel VARCHAR(255),
     IN p_passenger_capacity INT,
     IN p_mileage INT,
@@ -240,7 +245,7 @@ BEGIN
         model = p_model,
         _year = p_year,
         vehicle_category = p_vehicle_category,
-        transmission = p_transmission,
+        transmission_id = p_transmission_id,
         fuel = p_fuel,
         passenger_capacity = p_passenger_capacity,
         mileage = p_mileage,
@@ -272,9 +277,7 @@ DELIMITER //
 
 CREATE PROCEDURE GetTransmissions()
 BEGIN
-    SELECT userregistration.*, roles.role_name 
-    FROM userregistration 
-    INNER JOIN roles ON userregistration.role_id = roles.role_id;
+    SELECT * FROM transmission;
 END //
 
 DELIMITER ;
@@ -284,4 +287,3 @@ call GetTransmissions();
 #-------------------------------------------------------------------------------------------------#
 #-------------------------------------------------------------------------------------------------#
 
-call GetRegisteredRecordByEmail('vedantpatil3941@gmail.com');
