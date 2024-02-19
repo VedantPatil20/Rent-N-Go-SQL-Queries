@@ -26,9 +26,9 @@ DELIMITER //
 
 CREATE PROCEDURE GetRegistrationRecords()
 BEGIN
-    SELECT userregistration.*, roles.role_name 
+    SELECT userregistration.*, roles._name 
     FROM userregistration 
-    INNER JOIN roles ON userregistration.role_id = roles.role_id;
+    INNER JOIN roles ON userregistration.role_id = roles.id;
 END //
 
 DELIMITER ;
@@ -61,16 +61,16 @@ DELIMITER ;
 
 #-------------------------------------------------------------------------------------------------#
 #-------------------------------------------------------------------------------------------------#
-
+# New
 DELIMITER //
 
 CREATE PROCEDURE GetRegisteredRecordByEmail(
     IN p_email VARCHAR(255)
 )
 BEGIN
-    SELECT userregistration.*, roles.role_name 
+    SELECT userregistration.*, roles._name 
     FROM userregistration 
-    INNER JOIN roles ON userregistration.role_id = roles.role_id
+    INNER JOIN roles ON userregistration.role_id = roles.id
     WHERE userregistration.email_address = p_email;
 END //
 
@@ -92,30 +92,30 @@ DELIMITER ;
 
 #-------------------------------------------------------------------------------------------------#
 #-------------------------------------------------------------------------------------------------#
-
+# New
 DELIMITER //
 CREATE PROCEDURE GetRegisteredRecordsByRole(
         IN p_role_name varchar(50)
 )
 BEGIN
   SELECT * FROM userregistration 
-  INNER JOIN roles ON userregistration.role_id = roles.role_id 
-  WHERE roles.role_name = p_role_name;
+  INNER JOIN roles ON userregistration.role_id = roles.id 
+  WHERE roles._name = p_role_name;
 END //
 DELIMITER ;
 
 #-------------------------------------------------------------------------------------------------#
 #-------------------------------------------------------------------------------------------------#
-
+# New
 DELIMITER //
 
 CREATE PROCEDURE GetRegisteredRecordsById(
 	IN p_id INT
 )
 BEGIN
-    SELECT userregistration.*, roles.role_name 
+    SELECT userregistration.*, roles._name 
     FROM userregistration 
-    INNER JOIN roles ON userregistration.role_id = roles.role_id
+    INNER JOIN roles ON userregistration.role_id = roles.id
     WHERE userregistration.id = p_id;
 END //
 
@@ -157,32 +157,35 @@ DELIMITER ;
 
 #-------------------------------------------------------------------------------------------------#
 #-------------------------------------------------------------------------------------------------#
-
+# New
 DELIMITER //
 
 CREATE PROCEDURE AddNewCar(
-    IN p_brand VARCHAR(255),
     IN p_model VARCHAR(255),
     IN p_year INT,
-    IN p_vehicle_category VARCHAR(255),
-    IN p_transmission VARCHAR(255),
-    IN p_fuel VARCHAR(255),
-    IN p_passenger_capacity INT,
-    IN p_baggage_capacity INT,
     IN p_mileage INT,
     IN p_desc TEXT,
-    IN p_daily_price DECIMAL(10, 2),
+    IN p_hourly_price DECIMAL(10, 2),
     IN p_car_model_images TEXT,
-    IN p_status VARCHAR(255)
+    IN p_brand_id INT,
+    IN p_transmission_id INT,
+    IN p_bodytype_id INT,
+    IN p_carfuel_id INT,
+    IN p_seatingcapacity_id INT,
+    IN p_baggagecapacity_id INT,
+    IN p_location_id INT,
+    IN p_availability_status_id INT
 )
 BEGIN
     INSERT INTO cardetails (
-    brand, model, _year, vehicle_category, transmission, fuel, 
-    passenger_capacity, baggage_capacity, mileage, _desc, daily_price, car_model_images, _status
+    model, _year, mileage, _desc, daily_price, car_model_images, 
+    brand_id, transmission_id, bodytype_id, carfuel_id, seatingcapacity_id, 
+    baggagecapacity_id, location_id, availability_status_id
 ) 
 VALUES (
-    p_brand, p_model, p_year, p_vehicle_category, p_transmission, p_fuel, 
-    p_passenger_capacity, p_baggage_capacity, p_mileage, p_desc, p_daily_price, p_car_model_images, p_status
+    p_model, p_year, p_mileage, p_desc, p_daily_price, p_car_model_images, 
+    p_brand_id, p_transmission_id, p_bodytype_id, p_carfuel_id, p_seatingcapacity_id, 
+    p_baggagecapacity_id, p_location_id, p_availability_status_id
 );
 END //
 
@@ -225,37 +228,42 @@ call GetCarDetailsById(1);
 DELIMITER //
 CREATE PROCEDURE UpdateExistingCarDetails(
     IN p_carid INT,
-    IN p_brand VARCHAR(255),
     IN p_model VARCHAR(255),
     IN p_year INT,
-    IN p_vehicle_category VARCHAR(255),
-    IN p_transmission_id INT,
-    IN p_fuel VARCHAR(255),
-    IN p_passenger_capacity INT,
     IN p_mileage INT,
     IN p_desc TEXT,
-    IN p_daily_price DECIMAL(10, 2),
+    IN p_hourly_price DECIMAL(10, 2),
     IN p_car_model_images TEXT,
-    IN p_status VARCHAR(255)
+    IN p_brand_id INT,
+    IN p_transmission_id INT,
+    IN p_bodytype_id INT,
+    IN p_carfuel_id INT,
+    IN p_seatingcapacity_id INT,
+    IN p_baggagecapacity_id INT,
+    IN p_location_id INT,
+    IN p_availability_status_id INT
 )
 BEGIN
     UPDATE cardetails
     SET 
-        brand = p_brand,
         model = p_model,
         _year = p_year,
-        vehicle_category = p_vehicle_category,
-        transmission_id = p_transmission_id,
-        fuel = p_fuel,
-        passenger_capacity = p_passenger_capacity,
         mileage = p_mileage,
         _desc = p_desc,
-        daily_price = p_daily_price,
+        hourly_price = p_hourly_price,
         car_model_images = p_car_model_images,
-        _status = p_status
-    WHERE car_id = p_carid;
+        brand_id = p_brand_id,
+        transmission_id = p_transmission_id,
+        bodytype_id = p_bodytype_id,
+        carfuel_id = p_carfuel_id,
+        seatingcapacity_id = p_seatingcapacity_id,
+        baggagecapacity_id = p_baggagecapacity_id,
+        location_id = p_location_id,
+        availability_status_id = p_availability_status_id
+    WHERE id = p_carid;
 END //
 DELIMITER ;
+
 
 #-------------------------------------------------------------------------------------------------#
 #-------------------------------------------------------------------------------------------------#
