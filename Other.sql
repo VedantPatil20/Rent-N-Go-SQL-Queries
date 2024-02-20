@@ -1,6 +1,16 @@
 SET FOREIGN_KEY_CHECKS = 0;
 SET FOREIGN_KEY_CHECKS = 1;
 
+SELECT
+    CONSTRAINT_NAME
+FROM
+    INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS
+WHERE
+ 
+    UPDATE_RULE = 'CASCADE'
+    AND CONSTRAINT_SCHEMA = 'rentngo_rentalservice_db'
+    AND TABLE_NAME = 'userregistration';
+
 # stores all authority roles
 CREATE TABLE roles (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -13,16 +23,9 @@ INSERT INTO roles (id, _name) VALUES (1, 'SuperAdmin');
 INSERT INTO roles (id, _name) VALUES (2, 'Admin');
 INSERT INTO roles (id, _name) VALUES (3, 'User');
 
+call RegisterNewActor('Pranay', 'Kalamkar', 'pranay@gmail.com', 'Pranay@123', 3);
+
 # user and admin register table
-CREATE TABLE userregistration (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    first_name VARCHAR(255) NOT NULL,
-    last_name VARCHAR(255) NOT NULL,
-    email_address VARCHAR(255) UNIQUE NOT NULL,
-    pass_word VARCHAR(255) NOT NULL,
-    role_id INT,
-    FOREIGN KEY (role_id) REFERENCES roles(id)
-);
 
 CREATE TABLE userregistration (
     id INT AUTO_INCREMENT PRIMARY KEY,
@@ -33,6 +36,19 @@ CREATE TABLE userregistration (
     role_id INT,
     FOREIGN KEY (role_id) REFERENCES roles(id) ON UPDATE CASCADE
 );
+
+select * from userregistration;
+
+UPDATE userregistration
+SET 
+    first_name = 'Vedant',
+    last_name = 'Patil',
+    email_address = 'vedantpatil3941@gmail.com',
+    pass_word = 'Vedant@2000',
+    role_id = 3
+WHERE
+    id = SomeID;
+
 
 # users personal details with profile picture
 CREATE TABLE userpersonaldetails (
@@ -324,12 +340,12 @@ CREATE PROCEDURE AddNewCar(
 )
 BEGIN
     INSERT INTO cardetails (
-    model, _year, mileage, _desc, daily_price, car_model_images, 
+    model, _year, mileage, _desc, hourly_price, car_model_images, 
     brand_id, transmission_id, bodytype_id, carfuel_id, seatingcapacity_id, 
     baggagecapacity_id, location_id, availability_status_id
 ) 
 VALUES (
-    p_model, p_year, p_mileage, p_desc, p_daily_price, p_car_model_images, 
+    p_model, p_year, p_mileage, p_desc, p_hourly_price, p_car_model_images, 
     p_brand_id, p_transmission_id, p_bodytype_id, p_carfuel_id, p_seatingcapacity_id, 
     p_baggagecapacity_id, p_location_id, p_availability_status_id
 );
@@ -375,3 +391,62 @@ CREATE TABLE reviews (
     FOREIGN KEY (car_id) REFERENCES cardetails(id),
     FOREIGN KEY (user_id) REFERENCES userregistration(id)
 );
+
+SELECT 
+    cardetails.model,
+    cardetails._year,
+    cardetails.mileage,
+    cardetails._desc,
+    cardetails.hourly_price,
+    cardetails.car_model_images,
+    brand.name AS brand,
+    transmission.name AS transmission,
+    bodytype.name AS bodytype,
+    carfuel.name AS carfuel,
+    seatingcapacity.seat_capacity AS seating_capacity,
+    baggagecapacity.bag_capacity AS baggage_capacity,
+    location.name AS location,
+    availability_status.name AS availability_status
+FROM 
+    cardetails
+JOIN 
+    brand ON cardetails.brand_id = brand.id
+JOIN 
+    transmission ON cardetails.transmission_id = transmission.id
+JOIN 
+    bodytype ON cardetails.bodytype_id = bodytype.id
+JOIN 
+    carfuel ON cardetails.carfuel_id = carfuel.id
+JOIN 
+    seatingcapacity ON cardetails.seatingcapacity_id = seatingcapacity.id
+JOIN 
+    baggagecapacity ON cardetails.baggagecapacity_id = baggagecapacity.id
+JOIN 
+    location ON cardetails.location_id = location.id
+JOIN 
+    availability_status ON cardetails.availability_status_id = availability_status.id;
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -4,8 +4,8 @@ use rentngo_rentalservice_db;
 #-------------------------------------------------------------------------------------------------#
 
 CREATE TABLE roles (
-    role_id INT PRIMARY KEY,
-    role_name VARCHAR(255) NOT NULL
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    _name VARCHAR(255) UNIQUE NOT NULL
 );
 
 #-------------------------------------------------------------------------------------------------#
@@ -18,17 +18,41 @@ CREATE TABLE userregistration (
     email_address VARCHAR(255) UNIQUE NOT NULL,
     pass_word VARCHAR(255) NOT NULL,
     role_id INT,
-    FOREIGN KEY (role_id) REFERENCES roles(role_id)
+    FOREIGN KEY (role_id) REFERENCES roles(id) ON UPDATE CASCADE
 );
 
-#-------------------------------------------------------------------------------------------------#
-#-------------------------------------------------------------------------------------------------#
+# users personal details with profile picture
+CREATE TABLE userpersonaldetails (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    profile_picture TEXT,
+	mobile_no VARCHAR(15) NOT NULL,
+	gender CHAR(1) NOT NULL,
+	dob Date NOT NULL,
+	emeregency_contact VARCHAR(15) NOT NULL,
+	user_id INT,
+	Foreign KEY (user_id) REFERENCES userregistration(id)
+);
 
-select * from roles;
+# user's address
+CREATE TABLE useraddress (
+	id INT AUTO_INCREMENT PRIMARY KEY,
+    address VARCHAR(500) NOT NULL,
+    city VARCHAR(50) NOT NULL,
+    state VARCHAR(50) NOT NULL,
+    pin_code VARCHAR(10) NOT NULL,
+    user_id INT,
+    Foreign KEY (user_id) REFERENCES userregistration(id)
+);
 
-INSERT INTO roles (role_id, role_name) VALUES (1, 'SuperAdmin');
-INSERT INTO roles (role_id, role_name) VALUES (2, 'Admin');
-INSERT INTO roles (role_id, role_name) VALUES (3, 'User');
+# user's personal document
+Create Table userdocument (
+	id INT AUTO_INCREMENT PRIMARY KEY,
+    aadhar_card TEXT,
+	pan_card TEXT, 
+    driving_licence TEXT,
+    user_id INT,
+    Foreign KEY (user_id) REFERENCES userregistration(id) ON UPDATE CASCADE ON DELETE CASCADE
+);
 
 #-------------------------------------------------------------------------------------------------#
 #-------------------------------------------------------------------------------------------------#
