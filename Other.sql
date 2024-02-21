@@ -13,8 +13,8 @@ WHERE
 
 # stores all authority roles
 CREATE TABLE roles (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    _name VARCHAR(255) UNIQUE NOT NULL
+    role_id INT AUTO_INCREMENT PRIMARY KEY,
+    role_name VARCHAR(255) UNIQUE NOT NULL
 );
 
 select * from roles;
@@ -28,38 +28,27 @@ call RegisterNewActor('Pranay', 'Kalamkar', 'pranay@gmail.com', 'Pranay@123', 3)
 # user and admin register table
 
 CREATE TABLE userregistration (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    auth_id INT AUTO_INCREMENT PRIMARY KEY,
     first_name VARCHAR(255) NOT NULL,
     last_name VARCHAR(255) NOT NULL,
     email_address VARCHAR(255) UNIQUE NOT NULL,
     pass_word VARCHAR(255) NOT NULL,
-    role_id INT,
-    FOREIGN KEY (role_id) REFERENCES roles(id) ON UPDATE CASCADE
+    roles_id INT,
+    FOREIGN KEY (roles_id) REFERENCES roles(role_id) ON UPDATE CASCADE
 );
 
 select * from userregistration;
 
-UPDATE userregistration
-SET 
-    first_name = 'Vedant',
-    last_name = 'Patil',
-    email_address = 'vedantpatil3941@gmail.com',
-    pass_word = 'Vedant@2000',
-    role_id = 3
-WHERE
-    id = SomeID;
-
-
 # users personal details with profile picture
 CREATE TABLE userpersonaldetails (
-    id INT AUTO_INCREMENT PRIMARY KEY,
+    usrdtl_id INT AUTO_INCREMENT PRIMARY KEY,
     profile_picture TEXT,
 	mobile_no VARCHAR(15) NOT NULL,
 	gender CHAR(1) NOT NULL,
 	dob Date NOT NULL,
 	emeregency_contact VARCHAR(15) NOT NULL,
-	user_id INT,
-	Foreign KEY (user_id) REFERENCES userregistration(id)
+	auths_id INT,
+	Foreign KEY (auths_id) REFERENCES userregistration(auth_id)
 );
 
 # user's address
@@ -393,6 +382,7 @@ CREATE TABLE reviews (
 );
 
 SELECT 
+	cardetails.id,
     cardetails.model,
     cardetails._year,
     cardetails.mileage,
@@ -401,12 +391,12 @@ SELECT
     cardetails.car_model_images,
     brand.name AS brand,
     transmission.name AS transmission,
-    bodytype.name AS bodytype,
-    carfuel.name AS carfuel,
-    seatingcapacity.seat_capacity AS seating_capacity,
-    baggagecapacity.bag_capacity AS baggage_capacity,
-    location.name AS location,
-    availability_status.name AS availability_status
+    bodytype.name,
+    carfuel.name,
+    seatingcapacity.seat_capacity,
+    baggagecapacity.bag_capacity,
+    location.name,
+    availability_status.name
 FROM 
     cardetails
 JOIN 

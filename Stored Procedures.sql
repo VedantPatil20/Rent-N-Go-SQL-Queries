@@ -198,39 +198,40 @@ DELIMITER //
 
 CREATE PROCEDURE ListCarsFleet()
 BEGIN
-	SELECT 
-		cardetails.model,
-		cardetails._year,
-		cardetails.mileage,
-		cardetails._desc,
-		cardetails.hourly_price,
-		cardetails.car_model_images,
-		brand.name AS brand,
-		transmission.name AS transmission,
-		bodytype.name AS bodytype,
-		carfuel.name AS carfuel,
-		seatingcapacity.seat_capacity AS seating_capacity,
-		baggagecapacity.bag_capacity AS baggage_capacity,
-		location.name AS location,
-		availability_status.name AS availability_status
-	FROM 
-		cardetails
-	JOIN 
-		brand ON cardetails.brand_id = brand.id
-	JOIN 
-		transmission ON cardetails.transmission_id = transmission.id
-	JOIN 
-		bodytype ON cardetails.bodytype_id = bodytype.id
-	JOIN 
-		carfuel ON cardetails.carfuel_id = carfuel.id
-	JOIN 
-		seatingcapacity ON cardetails.seatingcapacity_id = seatingcapacity.id
-	JOIN 
-		baggagecapacity ON cardetails.baggagecapacity_id = baggagecapacity.id
-	JOIN 
-		location ON cardetails.location_id = location.id
-	JOIN 
-		availability_status ON cardetails.availability_status_id = availability_status.id;
+SELECT 
+	cardetails.id,
+    cardetails.model,
+    cardetails._year,
+    cardetails.mileage,
+    cardetails._desc,
+    cardetails.hourly_price,
+    cardetails.car_model_images,
+    brand.name AS brand,
+    transmission.name AS transmission,
+    bodytype.name AS bodytype,
+    carfuel.name AS carfuel,
+    seatingcapacity.seat_capacity AS seating_capacity,
+    baggagecapacity.bag_capacity AS baggage_capacity,
+    location.name AS location,
+    availability_status.name AS availability_status
+FROM 
+    cardetails
+JOIN 
+    brand ON cardetails.brand_id = brand.id
+JOIN 
+    transmission ON cardetails.transmission_id = transmission.id
+JOIN 
+    bodytype ON cardetails.bodytype_id = bodytype.id
+JOIN 
+    carfuel ON cardetails.carfuel_id = carfuel.id
+JOIN 
+    seatingcapacity ON cardetails.seatingcapacity_id = seatingcapacity.id
+JOIN 
+    baggagecapacity ON cardetails.baggagecapacity_id = baggagecapacity.id
+JOIN 
+    location ON cardetails.location_id = location.id
+JOIN 
+    availability_status ON cardetails.availability_status_id = availability_status.id;
 END //
 
 DELIMITER ;
@@ -245,6 +246,7 @@ DELIMITER //
 CREATE PROCEDURE GetCarDetailsById(
         IN p_id INT
 )
+
 BEGIN
     SELECT cardetails.*
     FROM cardetails
@@ -253,7 +255,7 @@ END //
 
 DELIMITER ;
 
-call GetCarDetailsById(5);
+call GetCarDetailsById(6);
 
 #-------------------------------------------------------------------------------------------------#
 #-------------------------------------------------------------------------------------------------#
@@ -307,7 +309,7 @@ CREATE PROCEDURE DeleteExistingCar(
 )
 BEGIN
     DELETE FROM cardetails
-    WHERE car_id = p_carid;
+    WHERE id = p_carid;
 END //
 DELIMITER ;
 
