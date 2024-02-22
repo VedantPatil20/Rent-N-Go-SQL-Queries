@@ -28,7 +28,7 @@ call RegisterNewActor('Pranay', 'Kalamkar', 'pranay@gmail.com', 'Pranay@123', 3)
 # user and admin register table
 
 CREATE TABLE userregistration (
-    auth_id INT AUTO_INCREMENT PRIMARY KEY,
+    id INT AUTO_INCREMENT PRIMARY KEY,
     first_name VARCHAR(255) NOT NULL,
     last_name VARCHAR(255) NOT NULL,
     email_address VARCHAR(255) UNIQUE NOT NULL,
@@ -47,8 +47,8 @@ CREATE TABLE userpersonaldetails (
 	gender CHAR(1) NOT NULL,
 	dob Date NOT NULL,
 	emeregency_contact VARCHAR(15) NOT NULL,
-	auths_id INT,
-	Foreign KEY (auths_id) REFERENCES userregistration(auth_id)
+	user_id INT,
+	Foreign KEY (user_id) REFERENCES userregistration(id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 # user's address
@@ -59,7 +59,7 @@ CREATE TABLE useraddress (
     state VARCHAR(50) NOT NULL,
     pin_code VARCHAR(10) NOT NULL,
     user_id INT,
-    Foreign KEY (user_id) REFERENCES userregistration(id)
+    Foreign KEY (user_id) REFERENCES userregistration(id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 # user's personal document
@@ -69,7 +69,7 @@ Create Table userdocument (
 	pan_card TEXT, 
     driving_licence TEXT,
     user_id INT,
-    Foreign KEY (user_id) REFERENCES userregistration(id)
+    Foreign KEY (user_id) REFERENCES userregistration(id) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 #-------------------------------------------#
