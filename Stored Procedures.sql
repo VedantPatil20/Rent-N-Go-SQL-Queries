@@ -1,87 +1,59 @@
-use rentngo_rentalservice_db;
-
-#-------------------------------------------------------------------------------------------------#
-#-------------------------------------------------------------------------------------------------#
+################################################################################################
+############################# User or Admin Registration ######################################
+################################################################################################
 
 DELIMITER //
 
-CREATE PROCEDURE RegisterNewActor(
+CREATE PROCEDURE sp_rng_register_register(
     IN p_firstname VARCHAR(255),
     IN p_lastname VARCHAR(255),
-    IN p_email VARCHAR(320),
+    IN p_email VARCHAR(255),
     IN p_password VARCHAR(255),
     IN p_role_id INT
 )
 BEGIN
-    INSERT INTO userregistration (first_name, last_name, email_address, pass_word, role_id)
+    INSERT INTO tbl_authentications (first_name, last_name, email_address, pass_word, roles_id)
     VALUES (p_firstname, p_lastname, p_email, SHA2(p_password, 256), p_role_id);
 END //
 
 DELIMITER ;
 
-#-------------------------------------------------------------------------------------------------#
-#-------------------------------------------------------------------------------------------------#
+################################################################################################
 
 DELIMITER //
 
-CREATE PROCEDURE GetRegistrationRecords()
+CREATE PROCEDURE sp_rng_register_getrecords()
 BEGIN
-    SELECT userregistration.*, roles._name 
-    FROM userregistration 
-    INNER JOIN roles ON userregistration.role_id = roles.id;
+    SELECT tbl_authentications.*, tbl_roles.role_name 
+    FROM tbl_authentications 
+    INNER JOIN tbl_roles ON tbl_authentications.roles_id = tbl_roles.role_id;
 END //
 
 DELIMITER ;
 
-#-------------------------------------------------------------------------------------------------#
-#-------------------------------------------------------------------------------------------------#
+################################################################################################
+################################## User or Admin Login #########################################
+################################################################################################
 
 DELIMITER //
 
-CREATE PROCEDURE CheckEmailExists(
-    IN p_email VARCHAR(320),
-    IN p_id INT
-)
-BEGIN
-    DECLARE emailExists BOOLEAN;
-    
-    IF p_id IS NULL THEN
-        SELECT EXISTS(
-            SELECT 1 FROM userregistration WHERE email_address = p_email
-        ) INTO emailExists;
-    ELSE
-        SELECT EXISTS(
-            SELECT 1 FROM userregistration WHERE email_address = p_email AND id != p_id
-        ) INTO emailExists;
-    END IF;
-    SELECT emailExists AS IsExists;
-END //
-
-DELIMITER ;
-
-#-------------------------------------------------------------------------------------------------#
-#-------------------------------------------------------------------------------------------------#
-# New
-DELIMITER //
-
-CREATE PROCEDURE GetRegisteredRecordByEmail(
+CREATE PROCEDURE sp_rng_login_getauthdatabyemail(
     IN p_email VARCHAR(255)
 )
 BEGIN
-    SELECT userregistration.*, roles._name 
-    FROM userregistration 
-    INNER JOIN roles ON userregistration.role_id = roles.id
-    WHERE userregistration.email_address = p_email;
+    SELECT tbl_authentications.*, tbl_roles.role_name 
+    FROM tbl_authentications 
+    INNER JOIN tbl_roles ON tbl_authentications.roles_id = tbl_roles.role_id
+    WHERE tbl_authentications.email_address = p_email;
 END //
 
 DELIMITER ;
 
-#-------------------------------------------------------------------------------------------------#
-#-------------------------------------------------------------------------------------------------#
+################################################################################################
 
 DELIMITER //
 
-CREATE PROCEDURE VerifyPassword(
+CREATE PROCEDURE sp_rng_login_verifypassword (
     IN p_password VARCHAR(255)
 )
 BEGIN
@@ -90,178 +62,175 @@ END //
 
 DELIMITER ;
 
-#-------------------------------------------------------------------------------------------------#
-#-------------------------------------------------------------------------------------------------#
-# New
-DELIMITER //
-CREATE PROCEDURE GetRegisteredRecordsByRole(
-        IN p_role_name varchar(50)
-)
-BEGIN
-  SELECT * FROM userregistration 
-  INNER JOIN roles ON userregistration.role_id = roles.id 
-  WHERE roles._name = p_role_name;
-END //
-DELIMITER ;
+################################################################################################
+############################# User or Admin CRUD Operations ####################################
+################################################################################################
 
-#-------------------------------------------------------------------------------------------------#
-#-------------------------------------------------------------------------------------------------#
-# New
 DELIMITER //
 
-CREATE PROCEDURE GetRegisteredRecordsById(
-	IN p_id INT
+CREATE PROCEDURE sp_rng_admin_GetAuthDataByRole(
+    IN p_role_name VARCHAR(50)
 )
 BEGIN
-    SELECT userregistration.*, roles._name 
-    FROM userregistration 
-    INNER JOIN roles ON userregistration.role_id = roles.id
-    WHERE userregistration.id = p_id;
+    SELECT * FROM tbl_authentications 
+    INNER JOIN tbl_roles ON tbl_authentications.roles_id = tbl_roles.role_id 
+    WHERE tbl_roles.role_name = p_role_name;
 END //
 
 DELIMITER ;
 
-#-------------------------------------------------------------------------------------------------#
-#-------------------------------------------------------------------------------------------------#
+################################################################################################
 
 DELIMITER //
 
-CREATE PROCEDURE UpdateExistingActor(
-	IN p_id INT, 
+CREATE PROCEDURE sp_rng_admin_user_GetAuthDataById (
+    IN p_id INT
+)
+BEGIN
+    SELECT tbl_authentications.*, tbl_roles.role_name 
+    FROM tbl_authentications 
+    INNER JOIN tbl_roles ON tbl_authentications.roles_id = tbl_roles.role_id
+    WHERE tbl_authentications.auth_id = p_id;
+END //
+
+DELIMITER ;
+
+################################################################################################
+
+DELIMITER //
+
+CREATE PROCEDURE sp_rng_admin_user_updateautheticationdata (
+    IN p_id INT, 
     IN p_firstname VARCHAR(255), 
     IN p_lastname VARCHAR(255), 
-    IN p_email VARCHAR(320), 
-    IN p_role_id INT)
-BEGIN
-  UPDATE userregistration 
-  SET first_name = p_firstname, 
-      last_name = p_lastname, 
-      email_address = p_email, 
-      role_id = p_role_id
-  WHERE id = p_id;
-END //
-
-DELIMITER ;
-
-#-------------------------------------------------------------------------------------------------#
-#-------------------------------------------------------------------------------------------------#
-
-DELIMITER //
-CREATE PROCEDURE DeleteExistingActor(
-        IN p_id INT
+    IN p_email VARCHAR(255), 
+    IN p_role_id INT
 )
 BEGIN
-  DELETE FROM userregistration WHERE id = p_id;
+    UPDATE tbl_authentications 
+    SET first_name = p_firstname, 
+        last_name = p_lastname, 
+        email_address = p_email, 
+        roles_id = p_role_id
+    WHERE auth_id = p_id;
 END //
+
 DELIMITER ;
 
-#-------------------------------------------------------------------------------------------------#
-#-------------------------------------------------------------------------------------------------#
-# New
+################################################################################################
+
 DELIMITER //
 
-CREATE PROCEDURE AddNewCar(
+CREATE PROCEDURE sp_rng_admin_user_deleteauthenticationdata(
+    IN p_id INT
+)
+BEGIN
+    DELETE FROM tbl_authentications WHERE auth_id = p_id;
+END //
+
+DELIMITER ;
+
+################################################################################################
+####################################### Car CRUD Operations ####################################
+################################################################################################
+
+DELIMITER //
+
+CREATE PROCEDURE sp_rng_cars_addnewcar (
     IN p_model VARCHAR(255),
     IN p_year INT,
     IN p_mileage INT,
     IN p_desc TEXT,
     IN p_hourly_price DECIMAL(10, 2),
     IN p_car_model_images TEXT,
-    IN p_brand_id INT,
-    IN p_transmission_id INT,
-    IN p_bodytype_id INT,
-    IN p_carfuel_id INT,
-    IN p_seatingcapacity_id INT,
-    IN p_baggagecapacity_id INT,
-    IN p_location_id INT,
-    IN p_availability_status_id INT
+    IN p_brands_id INT,
+    IN p_transmissions_id INT,
+    IN p_bodytypes_id INT,
+    IN p_carfuels_id INT,
+    IN p_seatcaps_id INT,
+    IN p_bagcaps_id INT,
+    IN p_locations_id INT,
+    IN p_availstatus_id INT
 )
 BEGIN
-    INSERT INTO cardetails (
-    model, _year, mileage, _desc, daily_price, car_model_images, 
-    brand_id, transmission_id, bodytype_id, carfuel_id, seatingcapacity_id, 
-    baggagecapacity_id, location_id, availability_status_id
+    INSERT INTO tbl_cardetails (
+    model, _year, mileage, _desc, hourly_price, car_model_images, 
+    brands_id, transmissions_id, bodytypes_id, carfuels_id, seatcaps_id, 
+    bagcaps_id, locations_id, availstatus_id
 ) 
 VALUES (
-    p_model, p_year, p_mileage, p_desc, p_daily_price, p_car_model_images, 
-    p_brand_id, p_transmission_id, p_bodytype_id, p_carfuel_id, p_seatingcapacity_id, 
-    p_baggagecapacity_id, p_location_id, p_availability_status_id
+    p_model, p_year, p_mileage, p_desc, p_hourly_price, p_car_model_images, 
+    p_brands_id, p_transmissions_id, p_bodytypes_id, p_carfuels_id, p_seatcaps_id, 
+    p_bagcaps_id, p_locations_id, p_availstatus_id
 );
 END //
 
 DELIMITER ;
 
-#-------------------------------------------------------------------------------------------------#
-#-------------------------------------------------------------------------------------------------#
+################################################################################################
 
 DELIMITER //
 
-CREATE PROCEDURE ListCarsFleet()
+CREATE PROCEDURE sp_rng_cars_getcarsfleet()
 BEGIN
 SELECT 
-	cardetails.id,
-    cardetails.model,
-    cardetails._year,
-    cardetails.mileage,
-    cardetails._desc,
-    cardetails.hourly_price,
-    cardetails.car_model_images,
-    brand.name AS brand,
-    transmission.name AS transmission,
-    bodytype.name AS bodytype,
-    carfuel.name AS carfuel,
-    seatingcapacity.seat_capacity AS seating_capacity,
-    baggagecapacity.bag_capacity AS baggage_capacity,
-    location.name AS location,
-    availability_status.name AS availability_status
+	tbl_cardetails.car_id,
+    tbl_cardetails.model,
+    tbl_cardetails._year,
+    tbl_cardetails.mileage,
+    tbl_cardetails._desc,
+    tbl_cardetails.hourly_price,
+    tbl_cardetails.car_model_images,
+    tbl_brand.brand,
+    tbl_transmission.transmission,
+    tbl_bodytype.body_type,
+    tbl_carfuel.carfuel,
+    tbl_seatingcapacity.seat_capacity,
+    tbl_baggagecapacity.bag_capacity,
+    tbl_location.location,
+    tbl_availability_status.avail_status
 FROM 
-    cardetails
+    tbl_cardetails
 JOIN 
-    brand ON cardetails.brand_id = brand.id
+    tbl_brand ON tbl_cardetails.brands_id = tbl_brand.brand_id
 JOIN 
-    transmission ON cardetails.transmission_id = transmission.id
+    tbl_transmission ON tbl_cardetails.transmissions_id = tbl_transmission.transmission_id
 JOIN 
-    bodytype ON cardetails.bodytype_id = bodytype.id
+    tbl_bodytype ON tbl_cardetails.bodytypes_id = tbl_bodytype.bodytype_id
 JOIN 
-    carfuel ON cardetails.carfuel_id = carfuel.id
+    tbl_carfuel ON tbl_cardetails.carfuels_id = tbl_carfuel.carfuel_id
 JOIN 
-    seatingcapacity ON cardetails.seatingcapacity_id = seatingcapacity.id
+    tbl_seatingcapacity ON tbl_cardetails.seatcaps_id = tbl_seatingcapacity.seatcap_id
 JOIN 
-    baggagecapacity ON cardetails.baggagecapacity_id = baggagecapacity.id
+    tbl_baggagecapacity ON tbl_cardetails.bagcaps_id = tbl_baggagecapacity.bagcap_id
 JOIN 
-    location ON cardetails.location_id = location.id
+    tbl_location ON tbl_cardetails.locations_id = tbl_location.loc_id
 JOIN 
-    availability_status ON cardetails.availability_status_id = availability_status.id;
+    tbl_availability_status ON tbl_cardetails.availstatus_id = tbl_availability_status.avail_stat_id;
 END //
 
 DELIMITER ;
 
-call ListCarsFleet();
-
-#-------------------------------------------------------------------------------------------------#
-#-------------------------------------------------------------------------------------------------#
+################################################################################################
 
 DELIMITER //
 
-CREATE PROCEDURE GetCarDetailsById(
+CREATE PROCEDURE sp_rng_cars_getcardetailsbyid(
         IN p_id INT
 )
 
 BEGIN
-    SELECT cardetails.*
-    FROM cardetails
-    WHERE id = p_id;
+    SELECT tbl_cardetails.*
+    FROM tbl_cardetails
+    WHERE car_id = p_id;
 END //
 
 DELIMITER ;
 
-call GetCarDetailsById(6);
-
-#-------------------------------------------------------------------------------------------------#
-#-------------------------------------------------------------------------------------------------#
+################################################################################################
 
 DELIMITER //
-CREATE PROCEDURE UpdateExistingCarDetails(
+CREATE PROCEDURE sp_rng_cars_updatecardetails(
     IN p_id INT,
     IN p_model VARCHAR(255),
     IN p_year INT,
@@ -269,17 +238,17 @@ CREATE PROCEDURE UpdateExistingCarDetails(
     IN p_desc TEXT,
     IN p_hourly_price DECIMAL(10, 2),
     IN p_car_model_images TEXT,
-    IN p_brand_id INT,
-    IN p_transmission_id INT,
-    IN p_bodytype_id INT,
-    IN p_carfuel_id INT,
-    IN p_seatingcapacity_id INT,
-    IN p_baggagecapacity_id INT,
-    IN p_location_id INT,
-    IN p_availability_status_id INT
+    IN p_brands_id INT,
+    IN p_transmissions_id INT,
+    IN p_bodytypes_id INT,
+    IN p_carfuels_id INT,
+    IN p_seatcaps_id INT,
+    IN p_bagcaps_id INT,
+    IN p_locations_id INT,
+    IN p_availstatus_id INT
 )
 BEGIN
-    UPDATE cardetails
+    UPDATE tbl_cardetails
     SET 
         model = p_model,
         _year = p_year,
@@ -287,46 +256,144 @@ BEGIN
         _desc = p_desc,
         hourly_price = p_hourly_price,
         car_model_images = p_car_model_images,
-        brand_id = p_brand_id,
-        transmission_id = p_transmission_id,
-        bodytype_id = p_bodytype_id,
-        carfuel_id = p_carfuel_id,
-        seatingcapacity_id = p_seatingcapacity_id,
-        baggagecapacity_id = p_baggagecapacity_id,
-        location_id = p_location_id,
-        availability_status_id = p_availability_status_id
-    WHERE id = p_id;
+        brands_id = p_brands_id,
+        transmissions_id = p_transmissions_id,
+        bodytypes_id = p_bodytypes_id,
+        carfuels_id = p_carfuels_id,
+        seatcaps_id = p_seatcaps_id,
+        bagcaps_id = p_bagcaps_id,
+        locations_id = p_locations_id,
+        availstatus_id = p_availstatus_id
+    WHERE car_id = p_id;
 END //
 DELIMITER ;
 
-
-#-------------------------------------------------------------------------------------------------#
-#-------------------------------------------------------------------------------------------------#
+################################################################################################
 
 DELIMITER //
-CREATE PROCEDURE DeleteExistingCar(
+CREATE PROCEDURE sp_rng_cars_deletecar(
     IN p_carid INT
 )
 BEGIN
-    DELETE FROM cardetails
-    WHERE id = p_carid;
+    DELETE FROM tbl_cardetails
+    WHERE car_id = p_carid;
 END //
 DELIMITER ;
 
-#-------------------------------------------------------------------------------------------------#
-#-------------------------------------------------------------------------------------------------#
+################################################################################################
+####################################### All Master Table #######################################
+################################################################################################
 
 DELIMITER //
 
-CREATE PROCEDURE GetTransmissions()
+CREATE PROCEDURE sp_rng_cars_GetBrandData()
 BEGIN
-    SELECT * FROM transmission;
+    SELECT * FROM tbl_brand;
 END //
 
 DELIMITER ;
 
-call GetTransmissions();
+################################################################################################
 
-#-------------------------------------------------------------------------------------------------#
-#-------------------------------------------------------------------------------------------------#
+DELIMITER //
 
+CREATE PROCEDURE sp_rng_cars_GetTransmissionData()
+BEGIN
+    SELECT * FROM tbl_transmission;
+END //
+
+DELIMITER ;
+
+################################################################################################
+
+DELIMITER //
+
+CREATE PROCEDURE sp_rng_cars_GetBodytypeData()
+BEGIN
+    SELECT * FROM tbl_bodytype;
+END //
+
+DELIMITER ;
+
+################################################################################################
+
+DELIMITER //
+
+CREATE PROCEDURE sp_rng_cars_GetCarfuelData()
+BEGIN
+    SELECT * FROM tbl_carfuel;
+END //
+
+DELIMITER ;
+
+################################################################################################
+
+DELIMITER //
+
+CREATE PROCEDURE sp_rng_cars_GetSeatingcapacityData()
+BEGIN
+    SELECT * FROM tbl_seatingcapacity;
+END //
+
+DELIMITER ;
+
+################################################################################################
+
+DELIMITER //
+
+CREATE PROCEDURE sp_rng_cars_GetBaggagecapacityData()
+BEGIN
+    SELECT * FROM tbl_baggagecapacity;
+END //
+
+DELIMITER ;
+
+################################################################################################
+
+DELIMITER //
+
+CREATE PROCEDURE sp_rng_cars_GetAvailabilityStatusData()
+BEGIN
+    SELECT * FROM tbl_availability_status;
+END //
+
+DELIMITER ;
+
+################################################################################################
+
+DELIMITER //
+
+CREATE PROCEDURE sp_rng_cars_GetLocationData()
+BEGIN
+    SELECT * FROM tbl_location;
+END //
+
+DELIMITER ;
+
+################################################################################################
+############################## Common Stored Procedures ########################################
+################################################################################################
+
+DELIMITER //
+
+CREATE PROCEDURE sp_rng_common_checkemailexistence(
+    IN p_email VARCHAR(255),
+    IN p_id INT
+)
+BEGIN
+    DECLARE emailExists BOOLEAN;
+    
+    IF p_id IS NULL THEN
+        SELECT EXISTS(
+            SELECT 1 FROM tbl_authentications WHERE email_address = p_email
+        ) INTO emailExists;
+    ELSE
+        SELECT EXISTS(
+            SELECT 1 FROM tbl_authentications WHERE email_address = p_email AND auth_id != p_id
+        ) INTO emailExists;
+    END IF;
+    
+    SELECT emailExists AS IsExists;
+END //
+
+DELIMITER ;
